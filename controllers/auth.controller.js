@@ -1,19 +1,7 @@
 const authService = require("../services/auth.service");
-const { registerSchema, loginSchema } = require("../validators/users.schema");
+const { loginSchema } = require("../validators/users.schema");
 const { firstZodMessage } = require("../utils/zodError");
 
-async function register(req, res) {
-    const parsed = registerSchema.safeParse(req.body);
-    if(!parsed.success) {
-        return res.status(400).json({ error: firstZodMessage(parsed.error) });
-    }
-    try {
-        const user = await authService.register(parsed.data);
-        res.status(201).json(user);
-    } catch(err) {
-        res.status(err.statusCode || 500).json({ error: err.message });
-    }
-}
 
 async function login(req, res) {
     const parsed = loginSchema.safeParse(req.body);
@@ -28,4 +16,4 @@ async function login(req, res) {
     }
 }
 
-module.exports = { register, login };
+module.exports = { login };

@@ -1,4 +1,4 @@
-const pool = require("./config/database");
+const prisma = require("./config/database");
 const { hashPassword } = require("./utils/password");
 
 async function seed() {
@@ -11,17 +11,16 @@ async function seed() {
     process.exit(1);
   }
 
-  const existing = await pool.query("SELECT id FROM users WHERE username = $1", [username]);
-  if (existing.rows.length > 0) {
+  const existing = await prisma.users.findUnique({ where: { username } });
+  if (existing) {
     console.log("Akun sudah ada, tidak dibuat ulang.");
     process.exit(0);
   }
 
   const passwordHash = await hashPassword(password);
-  await pool.query(
-    `INSERT INTO users (name, username, password_hash) VALUES ($1, $2, $3)`,
-    [name, username, passwordHash]
-  );
+  await prisma.users.create({
+    data: { name, username, password_hash: passwordHash },
+  });
 
   console.log(`Akun admin "${username}" berhasil dibuat.`);
   process.exit(0);
