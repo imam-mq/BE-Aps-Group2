@@ -1,6 +1,5 @@
-const { Pool } = require("pg");
-const config = require("./index");
+const { PrismaClient } = require("@prisma/client");
 
-const pool = new Pool(config.db);
+const prisma = new PrismaClient();
 
-module.exports = pool;
+module.exports = prisma;
