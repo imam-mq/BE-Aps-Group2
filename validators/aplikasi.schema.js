@@ -1,7 +1,5 @@
 const { z } = require("zod");
-const { PASSWORD_MASK } = require("../utils/password");
-
-const PASSWORD_REGEX = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/;
+const { PASSWORD_MASK, PASSWORD_REGEX } = require("../utils/password");
 
 const skalaEnum = z.enum(["Kecil", "Sedang", "Besar"]);
 
