@@ -29,4 +29,22 @@ async function login({ username, password }) {
     
 }
 
-module.exports = { login };
+async function register({ name, username, email, password }) {
+    const totalUsers = await prisma.users.count();
+    if (totalUsers > 0) {
+        const error = new Error("Registrasi ditutup, admin sudah terdaftar");
+        error.statusCode = 403;
+        throw error;
+    }
+
+    const passwordHash = await hashPassword(password);
+    const user = await prisma.users.create({
+        data: { name, username, email, password_hash: passwordHash },
+    });
+
+    return {
+        user: { id: user.id, name: user.name, username: user.username, email: user.email },
+    };
+}
+
+module.exports = { login, register };
