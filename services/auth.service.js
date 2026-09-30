@@ -1,6 +1,8 @@
 const prisma = require("../config/database");
 const { hashPassword, comparePassword } = require("../utils/password");
 const { signToken } = require("../utils/jwt");
+const { generateResetToken } = require("../utils/token");
+const { sendResetEmail } = require("../utils/mailer");
 
 
 // login
@@ -47,4 +49,50 @@ async function register({ name, username, email, password }) {
     };
 }
 
-module.exports = { login, register };
+async function forgotPassword({ email }) {
+    const user = await prisma.users.findUnique({ where: { email } });
+
+    if (user) {
+        const token = generateResetToken();
+        const expires = new Date(Date.now() + 15 * 60 * 1000); // 15 menit
+
+        await prisma.users.update({
+            where: { id: user.id },
+            data: { reset_token: token, reset_token_expires: expires },
+        });
+
+        const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
+        await sendResetEmail(user.email, resetLink);
+    }
+
+    // message email
+    return { message: "Jika email terdaftar, link reset password sudah dikirim" };
+    
+}
+
+async function resetPassword({ token, password }) {
+    const user = await prisma.users.findFirst({ where: { reset_token: token } });
+
+    if (!user || !user.reset_token_expires || user.reset_token_expires < new Date()) {
+        const error = new Error("Token tidak valid atau sudah kadaluarsa");
+        error.statusCode = 400;
+        throw error;
+    }
+
+    const passwordHash = await hashPassword(password);
+
+    await prisma.users.update({
+        where: { id: user.id },
+        data: {
+            password_hash: passwordHash,
+            reset_token: null,
+            reset_token_expires: null,
+        },
+    });
+
+    
+    return { message: "Password berhasil diubah, silakan login" };
+    
+}
+
+module.exports = { login, register, forgotPassword, resetPassword  };

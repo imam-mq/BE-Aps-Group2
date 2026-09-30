@@ -1,6 +1,7 @@
 const authService = require("../services/auth.service");
-const { loginSchema, registerSchema  } = require("../validators/users.schema");
+const { loginSchema, registerSchema, forgotPasswordSchema, resetPasswordSchema } = require("../validators/users.schema");
 const { firstZodMessage } = require("../utils/zodError");
+const { tr } = require("zod/locales");
 
 
 async function login(req, res) {
@@ -28,4 +29,28 @@ async function register(req, res) {
     }
 }
 
-module.exports = { login, register };
+async function forgotPassword(req, res) {
+    const parsed = forgotPasswordSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ error: firstZodMessage(parsed.error) });
+    try {
+        const result = await authService.forgotPassword(parsed.data);
+        res.json(result);
+    } catch (err) {
+        res.status(err.statusCode || 500).json({ error: err.message });
+    }
+}
+
+async function resetPassword(req, res) {
+    const parsed = resetPasswordSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ error: firstZodMessage(parsed.error) });
+
+    try {
+        const result = await authService.resetPassword(parsed.data);
+        res.json(result);
+    } catch (err) {
+        res.status(err.statusCode || 500).json({ error: err.message });
+    }
+    
+}
+
+module.exports = { login, register, forgotPassword, resetPassword };
