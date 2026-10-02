@@ -19,6 +19,20 @@ async function getById(id) {
   return maskPassword(row);
 }
 
+// get by namaaplikasi
+async function getByNamaAplikasi(nama) {
+  const row = await prisma.aplikasi.findMany({
+    where: { 
+      nama_aplikasi: { contains: nama, mode: "insensitive" },
+      delete_at: null,
+    },
+    orderBy: { id: "desc" },
+  });
+  if (!row) return null;
+  return maskPassword(row);
+}
+
+
 async function create(data) {
   const hashedPassword = await hashPassword(data.password_login);
 
@@ -77,4 +91,4 @@ async function remove(id) {
   return result.count > 0;
 }
 
-module.exports = { getAll, getById, create, update, remove };
+module.exports = { getAll, getById, create, update, getByNamaAplikasi, remove };

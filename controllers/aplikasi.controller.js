@@ -24,6 +24,17 @@ async function getById(req, res, next) {
     }
 }
 
+// search by nama aplikasi
+async function getByNamaAplikasi(req, res, next) {
+    try {
+        const rows = await aplikasiService.getByNamaAplikasi(req.params.nama);
+        if (rows.length === 0) return res.status(404).json({ error: "Data tidak ditemukan" });
+        res.json(rows);
+    } catch (err) {
+        next(err);
+    }
+}
+
 //post data
 async function create(req, res, next) {
     const parsed = createAplikasiSchema.safeParse(req.body);
@@ -64,4 +75,4 @@ async function remove(req, res, next) {
     }
 }
 
-module.exports = { getAll, getById, create, update, remove };
+module.exports = { getAll, getById, create, update, getByNamaAplikasi,remove };
