@@ -1,5 +1,6 @@
 const { Server, Socket } = require("socket.io");
 const { get } = require("../app");
+const { verifyToken } = require("../utils/jwt");
 
 let io;
 
@@ -16,6 +17,24 @@ function initSocket(server) {
         socket.on("disconnect", () => {
             console.log("terputus:", socket.id);
         });
+    });
+
+    io.use((socket, next) => {
+        const token = socket.handshake.auth?.token;
+        if(!token) {
+            return next(new Error("Token Tidak Ada"));
+        }
+
+        try {
+            const payload = verifyToken(token);
+            if (!payload) {
+                return next(new Error("Token Tidak Valid"));
+            }
+            socket.user = payload;
+            next();
+        } catch (err) {
+            next(new Error("Token sudah tidak valid"));
+        }
     });
 
     return io;
