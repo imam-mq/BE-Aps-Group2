@@ -1,5 +1,6 @@
 const prisma = require("../config/database");
 const { hashPassword, maskPassword, PASSWORD_MASK } = require("../utils/password");
+const { getIo } = require("../config/socket");
 
 // get seluruh data
 async function getAll() {
@@ -21,14 +22,13 @@ async function getById(id) {
 
 // get by namaaplikasi
 async function getByNamaAplikasi(nama) {
-  const row = await prisma.aplikasi.findMany({
+  const rows = await prisma.aplikasi.findMany({
     where: { 
       nama_aplikasi: { contains: nama, mode: "insensitive" },
       delete_at: null,
     },
     orderBy: { id: "desc" },
   });
-  if (!row) return null;
   return maskPassword(row);
 }
 
@@ -50,6 +50,7 @@ async function create(data) {
       is_active: data.is_active,
     },
   });
+  getIo().emit("aplikasi:changed", { action: "created", id: row.id });
   return maskPassword(row);
 }
 
@@ -78,7 +79,7 @@ async function update(id, data) {
       updated_at: new Date(),
     },
   });
-
+  getIo().emit("aplikasi:changed", { action: "updated", id: row.id });
   return maskPassword(row);
 }
 
@@ -88,7 +89,11 @@ async function remove(id) {
     data: { delete_at: new Date() },
   });
 
-  return result.count > 0;
+  const deleted = result.count > 0;
+  if (deleted) {
+    getIo().emit("aplikasi:changed", { action: "deleted", id: Number(id) });
+  }
+  return deleted;
 }
 
 module.exports = { getAll, getById, create, update, getByNamaAplikasi, remove };
