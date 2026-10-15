@@ -1,4 +1,3 @@
-const { tr } = require("zod/locales");
 const { verifyToken } = require("../utils/jwt");
 
 module.exports = function authMiddleware(req, res, next) {

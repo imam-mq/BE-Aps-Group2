@@ -42,7 +42,7 @@ async function create(req, res, next) {
         return res.status(400).json({ error: firstZodMessage(parsed.error) });
     }
     try {
-        const row = await aplikasiService.create(parsed.data);
+        const row = await aplikasiService.create(parsed.data, req.user.id);
         res.status(201).json(row);
     } catch (err) {
         next(err);
@@ -56,7 +56,7 @@ async function update(req, res, next) {
         return res.status(400).json({ error: firstZodMessage(parsed.error) });
     }
     try {
-        const row = await aplikasiService.update(req.params.id, parsed.data);
+        const row = await aplikasiService.update(req.params.id, parsed.data, req.user.id);
         if (!row) return res.status(404).json({ error: "Data tidak ditemukan" });
         res.json(row);
     } catch (err) {
@@ -67,7 +67,7 @@ async function update(req, res, next) {
 // delete
 async function remove(req, res, next) {
     try {
-        const success = await aplikasiService.remove(req.params.id);
+        const success = await aplikasiService.remove(req.params.id, req.user.id);
         if (!success) return res.status(404).json({ error: "Data tidak ditemukan" });
         res.json({ success: true });
     } catch (err) {
