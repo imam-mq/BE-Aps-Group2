@@ -2,6 +2,7 @@ const prisma = require("../config/database");
 const { hashPassword, maskPassword, PASSWORD_MASK } = require("../utils/password");
 const { encryptValue, decryptValue, pickEncrypted } = require("../utils/crypto");
 const { getIo } = require("../config/socket");
+const { logAction } = require("./audit.service");
 
 // data ke FE
 function toResponse(row) {
@@ -10,6 +11,28 @@ function toResponse(row) {
     user_login: decryptValue(row.user_login),
     lokasi_server: decryptValue(row.lokasi_server),
     lokasi_database: decryptValue(row.lokasi_database),
+  });
+}
+
+const TRACKED_FIELDS = [
+  "nama_aplikasi", "url_link", "user_login", "password_login",
+  "lokasi_server", "lokasi_database", "layanan", "koneksi", "skala", "is_active",
+];
+const ENCRYPTED_FIELDS = ["user_login", "lokasi_server", "lokasi_database"];
+
+function norm(v) {
+  return v === null || v === undefined ? "" : String(v);
+}
+
+function getChangedFields(before, after) {
+  return TRACKED_FIELDS.filter((field) => {
+    let a = before[field];
+    let b = after[field];
+    if (ENCRYPTED_FIELDS.includes(field)) {
+      a = decryptValue(a);
+      b = decryptValue(b);
+    }
+    return norm(a) !== norm(b);
   });
 }
 
@@ -34,7 +57,7 @@ async function getById(id) {
 // get by namaaplikasi
 async function getByNamaAplikasi(nama) {
   const rows = await prisma.aplikasi.findMany({
-    where: { 
+    where: {
       nama_aplikasi: { contains: nama, mode: "insensitive" },
       delete_at: null,
     },
@@ -43,8 +66,7 @@ async function getByNamaAplikasi(nama) {
   return rows.map(toResponse);
 }
 
-
-async function create(data) {
+async function create(data, userId) {
   const row = await prisma.aplikasi.create({
     data: {
       nama_aplikasi: data.nama_aplikasi,
@@ -59,11 +81,19 @@ async function create(data) {
       is_active: data.is_active,
     },
   });
+
+  await logAction({
+    userId,
+    aplikasiId: row.id,
+    aplikasiNama: row.nama_aplikasi,
+    action: "CREATE",
+  });
+
   getIo().emit("aplikasi:changed", { action: "created", id: row.id });
   return toResponse(row);
 }
 
-async function update(id, data) {
+async function update(id, data, userId) {
   const old = await prisma.aplikasi.findUnique({ where: { id: Number(id) } });
   if (!old) return null;
 
@@ -88,21 +118,42 @@ async function update(id, data) {
       updated_at: new Date(),
     },
   });
+
+  const changedFields = getChangedFields(old, row);
+  if (changedFields.length > 0) {
+    await logAction({
+      userId,
+      aplikasiId: row.id,
+      aplikasiNama: row.nama_aplikasi,
+      action: "UPDATE",
+      changedFields,
+    });
+  }
+
   getIo().emit("aplikasi:changed", { action: "updated", id: row.id });
   return toResponse(row);
 }
 
-async function remove(id) {
-  const result = await prisma.aplikasi.updateMany({
+async function remove(id, userId) {
+  const old = await prisma.aplikasi.findFirst({
     where: { id: Number(id), delete_at: null },
+  });
+  if (!old) return false;
+
+  await prisma.aplikasi.update({
+    where: { id: old.id },
     data: { delete_at: new Date() },
   });
 
-  const deleted = result.count > 0;
-  if (deleted) {
-    getIo().emit("aplikasi:changed", { action: "deleted", id: Number(id) });
-  }
-  return deleted;
+  await logAction({
+    userId,
+    aplikasiId: old.id,
+    aplikasiNama: old.nama_aplikasi,
+    action: "DELETE",
+  });
+
+  getIo().emit("aplikasi:changed", { action: "deleted", id: old.id });
+  return true;
 }
 
 module.exports = { getAll, getById, create, update, getByNamaAplikasi, remove };

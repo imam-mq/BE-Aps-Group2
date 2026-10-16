@@ -8,7 +8,7 @@ datasource db {
 }
 
 model aplikasi {
-  id              Int       @id @default(autoincrement())
+  id              Int         @id @default(autoincrement())
   nama_aplikasi   String
   url_link        String?
   user_login      String?
@@ -17,20 +17,38 @@ model aplikasi {
   lokasi_database String?
   layanan         String?
   koneksi         String?
-  skala           String?   @default("Kecil")
-  is_active       Boolean?  @default(true)
-  created_at      DateTime? @default(now()) @db.Timestamp(6)
-  updated_at      DateTime? @default(now()) @db.Timestamp(6)
-  delete_at       DateTime? @db.Timestamp(6)
+  skala           String?     @default("Kecil")
+  is_active       Boolean?    @default(true)
+  created_at      DateTime?   @default(now()) @db.Timestamp(6)
+  updated_at      DateTime?   @default(now()) @db.Timestamp(6)
+  delete_at       DateTime?   @db.Timestamp(6)
+  audit_log       audit_log[]
 }
 
 model users {
-  id                  Int       @id @default(autoincrement())
+  id                  Int         @id @default(autoincrement())
   name                String
-  username            String    @unique
-  email               String    @unique
+  username            String      @unique
+  email               String      @unique
   password_hash       String
   reset_token         String?
-  reset_token_expires DateTime? @db.Timestamp(6)
-  created_at          DateTime? @default(now()) @db.Timestamp(6)
+  reset_token_expires DateTime?   @db.Timestamp(6)
+  created_at          DateTime?   @default(now()) @db.Timestamp(6)
+  audit_log           audit_log[]
+}
+
+model audit_log {
+  id             Int      @id @default(autoincrement())
+  user_id        Int
+  aplikasi_id    Int
+  aplikasi_nama  String
+  action         String
+  changed_fields String[]
+  created_at     DateTime @default(now()) @db.Timestamp(6)
+
+  user     users    @relation(fields: [user_id], references: [id])
+  aplikasi aplikasi @relation(fields: [aplikasi_id], references: [id])
+
+  @@index([user_id])
+  @@index([aplikasi_id])
 }
