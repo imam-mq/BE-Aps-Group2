@@ -1,0 +1,435 @@
+openapi: 3.0.3
+info:
+  title: Aplikasi API
+  version: 1.0.0
+  description: |
+    API pengelolaan data aplikasi.
+servers:
+  - url: http://localhost:4000
+tags:
+  - name: Auth
+    description: Registrasi, login, dan reset password
+  - name: Aplikasi
+    description: Data aplikasi (wajib login)
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    IdParam:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+      example: 1
+    NamaParam:
+      name: nama
+      in: path
+      required: true
+      description: Sebagian nama aplikasi (tidak peka huruf besar/kecil)
+      schema:
+        type: string
+      example: SAP
+
+  responses:
+    Unauthorized:
+      description: Token tidak ada atau tidak valid
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    NotFound:
+      description: Data tidak ditemukan
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    BadRequest:
+      description: Data yang dikirim tidak valid
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Data tidak ditemukan
+
+    Aplikasi:
+      type: object
+      description: password_login selalu ditampilkan tersamar, tidak pernah nilai aslinya.
+      properties:
+        id:
+          type: integer
+          example: 32
+        nama_aplikasi:
+          type: string
+          example: SAP
+        url_link:
+          type: string
+          example: https://contoh.example.com
+        user_login:
+          type: string
+          example: contoh-user
+        password_login:
+          type: string
+          example: "•••••"
+        lokasi_server:
+          type: string
+          example: Server-A
+        lokasi_database:
+          type: string
+          example: DB-A
+        layanan:
+          type: string
+          example: Keuangan
+        koneksi:
+          type: string
+          example: VPN
+        skala:
+          type: string
+          enum: [Kecil, Sedang, Besar]
+          example: Kecil
+        is_active:
+          type: boolean
+          example: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        delete_at:
+          type: string
+          format: date-time
+          nullable: true
+
+    AplikasiCreate:
+      type: object
+      required: [nama_aplikasi, password_login]
+      properties:
+        nama_aplikasi:
+          type: string
+          example: SAP
+        url_link:
+          type: string
+          example: https://contoh.example.com
+        user_login:
+          type: string
+          example: contoh-user
+        password_login:
+          type: string
+          description: Minimal 8 karakter, kombinasi huruf dan angka.
+          example: contoh1234
+        lokasi_server:
+          type: string
+          example: Server-A
+        lokasi_database:
+          type: string
+          example: DB-A
+        layanan:
+          type: string
+          example: Keuangan
+        koneksi:
+          type: string
+          example: VPN
+        skala:
+          type: string
+          enum: [Kecil, Sedang, Besar]
+          default: Kecil
+        is_active:
+          type: boolean
+          default: true
+
+    AplikasiUpdate:
+      type: object
+      description: Semua field opsional, hanya kirim yang ingin diubah.
+      properties:
+        nama_aplikasi:
+          type: string
+        url_link:
+          type: string
+        user_login:
+          type: string
+        password_login:
+          type: string
+          description: Kosongkan atau kirim "•••••" agar password tidak berubah. Kalau diisi, minimal 8 karakter kombinasi huruf dan angka.
+        lokasi_server:
+          type: string
+        lokasi_database:
+          type: string
+        layanan:
+          type: string
+        koneksi:
+          type: string
+        skala:
+          type: string
+          enum: [Kecil, Sedang, Besar]
+        is_active:
+          type: boolean
+
+paths:
+  /api/auth/register:
+    post:
+      tags: [Auth]
+      summary: Daftar akun baru
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, username, email, password]
+              properties:
+                name:
+                  type: string
+                  example: Contoh Nama
+                username:
+                  type: string
+                  minLength: 3
+                  example: contohuser
+                email:
+                  type: string
+                  format: email
+                  example: contoh@example.com
+                password:
+                  type: string
+                  description: Minimal 8 karakter, kombinasi huruf dan angka.
+                  example: contoh1234
+      responses:
+        "201":
+          description: Akun berhasil dibuat
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /api/auth/login:
+    post:
+      tags: [Auth]
+      summary: Login dan dapatkan token
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password]
+              properties:
+                username:
+                  type: string
+                  example: contohuser
+                password:
+                  type: string
+                  example: contoh1234
+      responses:
+        "200":
+          description: Login berhasil, respons berisi token JWT (berlaku 8 jam)
+        "400":
+          description: Username atau password kosong
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                error: Username wajib diisi
+        "401":
+          description: Username atau password salah
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                error: username atau password salah
+
+  /api/auth/forgot-password:
+    post:
+      tags: [Auth]
+      summary: Minta tautan reset password lewat email
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: contoh@example.com
+      responses:
+        "200":
+          description: Permintaan diterima
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /api/auth/reset-password:
+    post:
+      tags: [Auth]
+      summary: Atur password baru memakai token dari email
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token, password]
+              properties:
+                token:
+                  type: string
+                  example: token-dari-email
+                password:
+                  type: string
+                  description: Minimal 8 karakter, kombinasi huruf dan angka.
+                  example: baru12345
+      responses:
+        "200":
+          description: Password berhasil diubah
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /api/aplikasi:
+    get:
+      tags: [Aplikasi]
+      summary: Ambil semua aplikasi
+      description: Hanya data yang belum dihapus, urut dari yang terbaru.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Daftar aplikasi
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Aplikasi"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+    post:
+      tags: [Aplikasi]
+      summary: Tambah aplikasi
+      description: Data sensitif disimpan terenkripsi, dan aksi ini dicatat di audit log.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AplikasiCreate"
+      responses:
+        "201":
+          description: Aplikasi dibuat
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Aplikasi"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /api/aplikasi/namaaplikasi/{nama}:
+    get:
+      tags: [Aplikasi]
+      summary: Cari aplikasi berdasarkan nama
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/NamaParam"
+      responses:
+        "200":
+          description: Aplikasi yang cocok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Aplikasi"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /api/aplikasi/{id}:
+    get:
+      tags: [Aplikasi]
+      summary: Ambil satu aplikasi berdasarkan id
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Data aplikasi
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Aplikasi"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    patch:
+      tags: [Aplikasi]
+      summary: Ubah aplikasi
+      description: Hanya kolom yang dikirim yang diubah. Perubahan dicatat di audit log (nama kolomnya saja).
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AplikasiUpdate"
+      responses:
+        "200":
+          description: Aplikasi diperbarui
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Aplikasi"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    delete:
+      tags: [Aplikasi]
+      summary: Hapus aplikasi (soft delete)
+      description: Data tidak dihapus permanen, hanya ditandai terhapus. Aksi dicatat di audit log.
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Berhasil dihapus
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
