@@ -1,16 +1,16 @@
 openapi: 3.0.3
 info:
-  title: Aplikasi API
+  title: Docs API pengelolaan data aplikasi.
   version: 1.0.0
   description: |
-    API pengelolaan data aplikasi.
+    Semua endpoint di api perlu token JWT.
 servers:
   - url: http://localhost:4000
 tags:
   - name: Auth
-    description: Registrasi, login, dan reset password
+    description: Setup admin, login, dan reset password
   - name: Aplikasi
-    description: Data aplikasi (wajib login)
+    description: Data aplikasi (login terlebih dahulu untuk dapat token)
 
 components:
   securitySchemes:
@@ -49,6 +49,8 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/Error"
+          example:
+            error: Data tidak ditemukan
     BadRequest:
       description: Data yang dikirim tidak valid
       content:
@@ -62,7 +64,7 @@ components:
       properties:
         error:
           type: string
-          example: Data tidak ditemukan
+          example: Pesan kesalahan
 
     Aplikasi:
       type: object
@@ -181,7 +183,8 @@ paths:
   /api/auth/register:
     post:
       tags: [Auth]
-      summary: Daftar akun baru
+      summary: Buat akun admin pertama (setup awal)
+      description: Hanya bisa dipakai saat belum ada user sama sekali. Setelah admin terdaftar, endpoint ini menolak semua permintaan.
       security: []
       requestBody:
         required: true
@@ -208,9 +211,37 @@ paths:
                   example: contoh1234
       responses:
         "201":
-          description: Akun berhasil dibuat
+          description: Akun admin berhasil dibuat
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 1
+                      name:
+                        type: string
+                        example: Contoh Nama
+                      username:
+                        type: string
+                        example: contohuser
+                      email:
+                        type: string
+                        example: contoh@example.com
         "400":
           $ref: "#/components/responses/BadRequest"
+        "403":
+          description: Registrasi ditutup karena admin sudah terdaftar
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                error: Registrasi ditutup, admin sudah terdaftar
 
   /api/auth/login:
     post:
@@ -233,7 +264,27 @@ paths:
                   example: contoh1234
       responses:
         "200":
-          description: Login berhasil, respons berisi token JWT (berlaku 8 jam)
+          description: Login berhasil, token JWT berlaku 8 jam
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    example: xxx
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 1
+                      name:
+                        type: string
+                        example: Contoh Nama
+                      username:
+                        type: string
+                        example: contohuser
         "400":
           description: Username atau password kosong
           content:
@@ -254,7 +305,8 @@ paths:
   /api/auth/forgot-password:
     post:
       tags: [Auth]
-      summary: Minta tautan reset password lewat email
+      summary: Tautan reset password lewat email
+      description: Respons selalu sama, baik email terdaftar maupun tidak, supaya email yang terdaftar tidak bisa ditebak. Jika terdaftar, tautan reset (berlaku 15 menit) dikirim ke email.
       security: []
       requestBody:
         required: true
@@ -271,13 +323,21 @@ paths:
       responses:
         "200":
           description: Permintaan diterima
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Jika email terdaftar, link reset password sudah dikirim
         "400":
           $ref: "#/components/responses/BadRequest"
 
   /api/auth/reset-password:
     post:
       tags: [Auth]
-      summary: Atur password baru memakai token dari email
+      summary: Atur password baru dengan token dari email
       security: []
       requestBody:
         required: true
@@ -297,13 +357,27 @@ paths:
       responses:
         "200":
           description: Password berhasil diubah
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Password berhasil diubah, silakan login
         "400":
-          $ref: "#/components/responses/BadRequest"
+          description: Password tidak valid, atau token tidak valid/sudah kadaluarsa (15 menit)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                error: Token tidak valid atau sudah kadaluarsa
 
   /api/aplikasi:
     get:
       tags: [Aplikasi]
-      summary: Ambil semua aplikasi
+      summary: get semua data aplikasi
       description: Hanya data yang belum dihapus, urut dari yang terbaru.
       security:
         - bearerAuth: []
@@ -345,7 +419,7 @@ paths:
   /api/aplikasi/namaaplikasi/{nama}:
     get:
       tags: [Aplikasi]
-      summary: Cari aplikasi berdasarkan nama
+      summary: search aplikasi berdasarkan nama
       security:
         - bearerAuth: []
       parameters:
@@ -367,7 +441,7 @@ paths:
   /api/aplikasi/{id}:
     get:
       tags: [Aplikasi]
-      summary: Ambil satu aplikasi berdasarkan id
+      summary: get data aplikasi berdasarkan id
       security:
         - bearerAuth: []
       parameters:
@@ -385,7 +459,7 @@ paths:
           $ref: "#/components/responses/NotFound"
     patch:
       tags: [Aplikasi]
-      summary: Ubah aplikasi
+      summary: patch aplikasi
       description: Hanya kolom yang dikirim yang diubah. Perubahan dicatat di audit log (nama kolomnya saja).
       security:
         - bearerAuth: []
