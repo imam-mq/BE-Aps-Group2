@@ -23,7 +23,13 @@ app.use(cors());
 app.use(express.json());
 
 // docs api (tanpa login)
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(openapiDoc));
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(openapiDoc, {
+    swaggerOptions: { defaultModelsExpandDepth: -1 },
+  })
+);
 
 app.use("/api/auth", authRouter);
 app.use("/api/aplikasi", authMiddleware, aplikasiRouter);
