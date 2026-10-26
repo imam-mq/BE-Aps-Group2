@@ -3,8 +3,7 @@ info:
   title: Docs API pengelolaan data aplikasi.
   version: 1.0.0
   description: |
-    Endpoint di grup Aplikasi memerlukan token JWT. Dapatkan token lewat
-    POST /api/auth/login, lalu klik Authorize dan isi tokennya.
+    Endpoint di grup Aplikasi memerlukan token JWT.
 servers:
   - url: http://localhost:4000
 tags:
