@@ -3,7 +3,8 @@ info:
   title: Docs API pengelolaan data aplikasi.
   version: 1.0.0
   description: |
-    Semua endpoint di api perlu token JWT.
+    Endpoint di grup Aplikasi memerlukan token JWT. Dapatkan token lewat
+    POST /api/auth/login, lalu klik Authorize dan isi tokennya.
 servers:
   - url: http://localhost:4000
 tags:
@@ -114,6 +115,29 @@ components:
           type: string
           format: date-time
           nullable: true
+
+    AplikasiList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Aplikasi"
+        meta:
+          type: object
+          properties:
+            page:
+              type: integer
+              example: 1
+            limit:
+              type: integer
+              example: 10
+            total:
+              type: integer
+              example: 19
+            totalPages:
+              type: integer
+              example: 2
 
     AplikasiCreate:
       type: object
@@ -378,18 +402,58 @@ paths:
     get:
       tags: [Aplikasi]
       summary: get semua data aplikasi
-      description: Hanya data yang belum dihapus, urut dari yang terbaru.
+      description: Hanya data yang belum dihapus, urut dari yang terbaru. Mendukung pencarian, filter, dan halaman lewat query.
       security:
         - bearerAuth: []
+      parameters:
+        - name: search
+          in: query
+          description: Cari di nama aplikasi dan URL (tidak peka huruf besar/kecil). Kolom lokasi tidak bisa dicari karena terenkripsi.
+          schema:
+            type: string
+          example: sap
+        - name: layanan
+          in: query
+          description: Filter layanan (tidak peka huruf besar/kecil)
+          schema:
+            type: string
+          example: web
+        - name: koneksi
+          in: query
+          description: Filter koneksi (tidak peka huruf besar/kecil)
+          schema:
+            type: string
+          example: vpn
+        - name: skala
+          in: query
+          description: Filter skala (tidak peka huruf besar/kecil)
+          schema:
+            type: string
+          example: Kecil
+        - name: page
+          in: query
+          description: Nomor halaman, mulai dari 1
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          description: Jumlah data per halaman (maksimal 50)
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 10
       responses:
         "200":
-          description: Daftar aplikasi
+          description: Daftar aplikasi beserta informasi halaman
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Aplikasi"
+                $ref: "#/components/schemas/AplikasiList"
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
     post:
