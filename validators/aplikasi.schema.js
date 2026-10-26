@@ -46,4 +46,13 @@ const updateAplikasiSchema = z
             });
         }
     })
-module.exports = { PASSWORD_MASK, createAplikasiSchema, updateAplikasiSchema };
+
+const listAplikasiQuerySchema = z.object({
+    search: z.string().trim().optional().default(""),
+    layanan: z.string().trim().optional().default(""),
+    koneksi: z.string().trim().optional().default(""),
+    skala: z.string().trim().optional().default(""),
+    page: z.coerce.number().int("page harus bilangan bulat").min(1, "page minimal 1").optional().default(1),
+    limit: z.coerce.number().int("limit harus bilangan bulat").min(1, "limit minimal 1").max(50, "limit maksimal 50").optional().default(10),
+});
+module.exports = { PASSWORD_MASK, createAplikasiSchema, updateAplikasiSchema, listAplikasiQuerySchema };

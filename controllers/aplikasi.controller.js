@@ -1,13 +1,17 @@
 const aplikasiService = require("../services/aplikasi.service");
-const { createAplikasiSchema, updateAplikasiSchema } = require("../validators/aplikasi.schema");
+const { createAplikasiSchema, updateAplikasiSchema, listAplikasiQuerySchema  } = require("../validators/aplikasi.schema");
 const { firstZodMessage } = require("../utils/zodError");
 
 
 // tampil data
 async function getAll(req, res, next) {
+    const parsed = listAplikasiQuerySchema.safeParse(req.query);
+    if (!parsed.success) {
+        return res.status(400).json({ error: firstZodMessage(parsed.error) });
+    }
     try {
-        const rows = await aplikasiService.getAll();
-        res.json(rows);
+        const result = await aplikasiService.getAll(parsed.data);
+        res.json(result);
     } catch (err) {
         next(err);
     }

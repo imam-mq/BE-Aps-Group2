@@ -37,12 +37,35 @@ function getChangedFields(before, after) {
 }
 
 // get seluruh data
-async function getAll() {
-  const rows = await prisma.aplikasi.findMany({
-    where: { delete_at: null },
-    orderBy: { id: "desc" },
-  });
-  return rows.map(toResponse);
+async function getAll({ search, layanan, koneksi, skala, page, limit }) {
+  const where = { delete_at: null };
+
+  // hanya nama_aplikasi & url_link
+  if (search) {
+    where.OR = [
+      { nama_aplikasi: { contains: search, mode: "insensitive" } },
+      { url_link: { contains: search, mode: "insensitive" } },
+    ];
+  }
+
+  if (layanan) where.layanan = { equals: layanan, mode: "insensitive" };
+  if (koneksi) where.koneksi = { equals: koneksi, mode: "insensitive" };
+  if (skala) where.skala = { equals: skala, mode: "insensitive" };
+
+  const [rows, total] = await prisma.$transaction([
+    prisma.aplikasi.findMany({
+      where,
+      orderBy: { id: "desc" },
+      skip: (page - 1) * limit,
+      take: limit,
+    }),
+    prisma.aplikasi.count({ where }),
+  ]);
+
+  return {
+    data: rows.map(toResponse),
+    meta: { page, limit, total, totalPages: Math.ceil(total / limit) },
+  };
 }
 
 // get by id
