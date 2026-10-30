@@ -37,7 +37,7 @@ function getChangedFields(before, after) {
 }
 
 // get seluruh data
-async function getAll({ search, layanan, koneksi, skala, page, limit }) {
+async function getAll({ search, layanan, status, koneksi, skala, page, limit }) {
   const where = { delete_at: null };
 
   // hanya nama_aplikasi & url_link
@@ -51,6 +51,8 @@ async function getAll({ search, layanan, koneksi, skala, page, limit }) {
   if (layanan) where.layanan = { equals: layanan, mode: "insensitive" };
   if (koneksi) where.koneksi = { equals: koneksi, mode: "insensitive" };
   if (skala) where.skala = { equals: skala, mode: "insensitive" };
+  if (status === "aktif") where.is_active = true;
+  if (status === "nonaktif") where.is_active = false;
 
   const [rows, total] = await prisma.$transaction([
     prisma.aplikasi.findMany({

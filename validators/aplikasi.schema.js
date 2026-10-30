@@ -52,6 +52,7 @@ const listAplikasiQuerySchema = z.object({
     layanan: z.string().trim().optional().default(""),
     koneksi: z.string().trim().optional().default(""),
     skala: z.string().trim().optional().default(""),
+    status: z.enum(["", "aktif", "nonaktif"]).optional().default(""),
     page: z.coerce.number().int("page harus bilangan bulat").min(1, "page minimal 1").optional().default(1),
     limit: z.coerce.number().int("limit harus bilangan bulat").min(1, "limit minimal 1").max(50, "limit maksimal 50").optional().default(10),
 });
