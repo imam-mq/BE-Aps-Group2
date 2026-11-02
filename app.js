@@ -8,6 +8,7 @@ var swaggerUi = require("swagger-ui-express");
 
 var aplikasiRouter = require("./routes/aplikasi.routes");
 var authRouter = require("./routes/auth.routes");
+var dashboardRouter = require("./routes/dashboard.routes");
 var authMiddleware = require("./middlewares/authMiddleware");
 var notFound = require("./middlewares/notFound");
 var errorHandler = require("./middlewares/errorHandler");
@@ -33,6 +34,7 @@ app.use(
 
 app.use("/api/auth", authRouter);
 app.use("/api/aplikasi", authMiddleware, aplikasiRouter);
+app.use("/api/dashboard", authMiddleware, dashboardRouter);
 
 app.use(notFound);
 app.use(errorHandler);
