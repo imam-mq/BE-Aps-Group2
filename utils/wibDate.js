@@ -19,7 +19,8 @@ function isRealDate(value) {
 
 // jumlah hari dari from ke to
 function countDays(from, to) {
-    return Math.round(new Date(`${to}T00:00:00Z`) - new Date(`${from}T00:00:00Z`) / DAY_MS) + 1;
+    const diffMs = new Date(`${to}T00:00:00Z`) - new Date(`${from}T00:00:00Z`);
+    return Math.round(diffMs / DAY_MS) + 1;
 }
 
 // Batas UTC untuk rentang tanggal WIB: dari awal hari "from" sampai sebelum awal hari setelah "to"

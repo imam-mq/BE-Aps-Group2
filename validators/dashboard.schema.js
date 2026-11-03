@@ -2,6 +2,8 @@ const { z } = require("zod");
 const { todayWib, isRealDate, countDays } = require("../utils/wibDate");
 const { path } = require("../app");
 
+const MAX_RANGE_DAYS = 90;
+
 const activityQuerySchema = z
     .object({
         from: z.string().trim().optional().default(""),

@@ -13,12 +13,11 @@ async function getSummary(req, res, next) {
 }
 
 async function getActivity(req, res, next) {
-    const parsed = activityQuerySchema.safeParse(req.query);
-    
-    if  (!parsed.success) {
-        return res.status(400).json({ error: firstZodMessage(parsed.error)  });
-    }
     try {
+        const parsed = activityQuerySchema.safeParse(req.query);
+        if (!parsed.success) {
+            return res.status(400).json({ error: firstZodMessage(parsed.error) });
+        }
         res.json(await dashboardService.getActivity(parsed.data));
     } catch (err) {
         next(err);
