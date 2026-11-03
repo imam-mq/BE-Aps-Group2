@@ -3,7 +3,7 @@ info:
   title: Docs API pengelolaan data aplikasi.
   version: 1.0.0
   description: |
-    Endpoint di grup Aplikasi memerlukan token JWT.
+    Endpoint di grup Aplikasi dan Dashboard memerlukan token JWT.
 servers:
   - url: http://localhost:4000
 tags:
@@ -11,6 +11,8 @@ tags:
     description: Setup admin, login, dan reset password
   - name: Aplikasi
     description: Data aplikasi (login terlebih dahulu untuk dapat token)
+  - name: Dashboard
+    description: Ringkasan data dan aktivitas (login terlebih dahulu untuk dapat token)
 
 components:
   securitySchemes:
@@ -201,6 +203,108 @@ components:
           enum: [Kecil, Sedang, Besar]
         is_active:
           type: boolean
+
+    BreakdownItem:
+      type: object
+      properties:
+        key:
+          type: string
+          description: Nilai dalam huruf kecil. String kosong berarti belum diisi.
+          example: web
+        count:
+          type: integer
+          example: 13
+
+    DashboardSummary:
+      type: object
+      properties:
+        total:
+          type: integer
+          example: 20
+        aktif:
+          type: integer
+          example: 19
+        nonaktif:
+          type: integer
+          example: 1
+        layanan:
+          type: array
+          items:
+            $ref: "#/components/schemas/BreakdownItem"
+        koneksi:
+          type: array
+          items:
+            $ref: "#/components/schemas/BreakdownItem"
+        skala:
+          type: array
+          items:
+            $ref: "#/components/schemas/BreakdownItem"
+
+    DailyActivity:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+          description: Tanggal menurut WIB
+          example: "2026-10-16"
+        create:
+          type: integer
+          example: 1
+        update:
+          type: integer
+          example: 2
+        delete:
+          type: integer
+          example: 0
+
+    RecentActivity:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 6
+        action:
+          type: string
+          enum: [CREATE, UPDATE, DELETE]
+          example: UPDATE
+        user:
+          type: string
+          description: Nama pengguna yang melakukan aksi
+          example: imammubaraq
+        aplikasi:
+          type: string
+          description: Nama aplikasi saat aksi dilakukan
+          example: SAP
+        changedFields:
+          type: array
+          description: Nama kolom yang diubah (tanpa nilainya). Kosong untuk CREATE dan DELETE.
+          items:
+            type: string
+          example: [nama_aplikasi, layanan]
+        actionAt:
+          type: string
+          format: date-time
+          description: Waktu aksi dalam UTC
+          example: "2026-10-26T06:52:31.000Z"
+
+    DashboardActivity:
+      type: object
+      properties:
+        total:
+          type: integer
+          description: Jumlah aktivitas dalam rentang
+          example: 6
+        daily:
+          type: array
+          description: Jumlah per hari. Hari tanpa aktivitas tidak disertakan.
+          items:
+            $ref: "#/components/schemas/DailyActivity"
+        recent:
+          type: array
+          description: Maksimal 5 aktivitas terbaru dalam rentang
+          items:
+            $ref: "#/components/schemas/RecentActivity"
 
 paths:
   /api/auth/register:
@@ -429,6 +533,13 @@ paths:
           schema:
             type: string
           example: Kecil
+        - name: status
+          in: query
+          description: Filter status aplikasi. Kosongkan untuk semua.
+          schema:
+            type: string
+            enum: [aktif, nonaktif]
+          example: aktif
         - name: page
           in: query
           description: Nomor halaman, mulai dari 1
@@ -570,3 +681,62 @@ paths:
           $ref: "#/components/responses/Unauthorized"
         "404":
           $ref: "#/components/responses/NotFound"
+
+  /api/dashboard/summary:
+    get:
+      tags: [Dashboard]
+      summary: Ringkasan kondisi aplikasi saat ini
+      description: Jumlah aplikasi yang belum dihapus beserta sebaran layanan, koneksi, dan skala. Huruf besar-kecil dan spasi disatukan (web, Web, dan WEB dihitung satu). Nilai kosong dikelompokkan pada key kosong.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Ringkasan aplikasi
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardSummary"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /api/dashboard/activity:
+    get:
+      tags: [Dashboard]
+      summary: Aktivitas dalam rentang tanggal
+      description: Jumlah create, update, dan delete per hari serta aktivitas terbaru dari audit log. Batas hari memakai WIB. Rentang maksimal 90 hari dan tanggal akhir tidak boleh melewati hari ini.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: from
+          in: query
+          required: true
+          description: Tanggal awal (WIB), format YYYY-MM-DD
+          schema:
+            type: string
+            format: date
+          example: "2026-10-01"
+        - name: to
+          in: query
+          required: true
+          description: Tanggal akhir (WIB), format YYYY-MM-DD
+          schema:
+            type: string
+            format: date
+          example: "2026-10-27"
+      responses:
+        "200":
+          description: Aktivitas dalam rentang
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardActivity"
+        "400":
+          description: Tanggal tidak valid atau rentang melebihi batas
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                error: Rentang maksimal 90 hari
+        "401":
+          $ref: "#/components/responses/Unauthorized"
