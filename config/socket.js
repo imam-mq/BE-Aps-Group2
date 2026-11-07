@@ -1,5 +1,4 @@
-const { Server, Socket } = require("socket.io");
-const { get } = require("../app");
+const { Server } = require("socket.io");
 const { verifyToken } = require("../utils/jwt");
 
 let io;
@@ -11,17 +10,10 @@ function initSocket(server) {
         },
     });
 
-    io.on("connection", (socket) => {
-        console.log("terhubung:", socket.id);
-
-        socket.on("disconnect", () => {
-            console.log("terputus:", socket.id);
-        });
-    });
-
+    // verifikasi JWT saat koneksi dibuka
     io.use((socket, next) => {
         const token = socket.handshake.auth?.token;
-        if(!token) {
+        if (!token) {
             return next(new Error("Token Tidak Ada"));
         }
 
@@ -35,6 +27,14 @@ function initSocket(server) {
         } catch (err) {
             next(new Error("Token sudah tidak valid"));
         }
+    });
+
+    io.on("connection", (socket) => {
+        console.log("terhubung:", socket.id);
+
+        socket.on("disconnect", () => {
+            console.log("terputus:", socket.id);
+        });
     });
 
     return io;
