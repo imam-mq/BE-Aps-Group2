@@ -181,4 +181,18 @@ async function remove(id, userId) {
   return true;
 }
 
-module.exports = { getAll, getById, create, update, getByNamaAplikasi, remove };
+
+// lihat data
+async function lihatData(id) {
+  const row = await prisma.aplikasi.findFirst({ where: { id: Number(id) } });
+  if (!row) return null;
+  return {
+    nama_aplikasi: row.nama_aplikasi,
+    user_login: decryptValue(row.user_login),
+    password_login: decryptValue(row.password_login),
+    lokasi_server: decryptValue(row.lokasi_server),
+    lokasi_database: decryptValue(row.lokasi_database),
+  };
+}
+
+module.exports = { getAll, getById, create, update, getByNamaAplikasi, remove, lihatData };
