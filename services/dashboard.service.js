@@ -3,7 +3,7 @@ const { toWibDateString, wibRangeToUtc } = require("../utils/wibDate");
 
 const RECENT_LIMIT = 5;
 
-// kondisi Huruf besar-kecil dan spasi disatukan (web = Web = WEB).
+// kondisi Huruf besar dan kesil 
 function countBy(rows, field) {
     const counts = new Map();
     for (const row of rows) {
