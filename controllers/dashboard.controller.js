@@ -1,7 +1,6 @@
 const dashboardService  = require("../services/dashboard.service");
 const { activityQuerySchema } = require("../validators/dashboard.schema");
 const { firstZodMessage  } = require("../utils/zodError");
-const { EREQUIRETLS } = require("nodemailer/lib/errors.js");
 
 
 async function getSummary(req, res, next) {
