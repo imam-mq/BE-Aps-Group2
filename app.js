@@ -34,7 +34,7 @@ app.use(
 
 app.use("/api/auth", authRouter);
 app.use("/api/aplikasi", authMiddleware, aplikasiRouter);
-app.use("/api/dashboard", authMiddleware, dashboardRouter);
+app.use("/api/dashboard", dashboardRouter);
 
 app.use(notFound);
 app.use(errorHandler);
