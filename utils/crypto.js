@@ -1,4 +1,4 @@
-const crypto = require("crypto");
+import crypto from "crypto";
 const ALGO = "aes-256-gcm";
 
 function getKey() {
@@ -45,4 +45,4 @@ function pickEncrypted(newValue, oldValue) {
   return encryptValue(newValue);
 }
 
-module.exports = { encrypt, decrypt, encryptValue, decryptValue, pickEncrypted };
+export { encrypt, decrypt, encryptValue, decryptValue, pickEncrypted };
