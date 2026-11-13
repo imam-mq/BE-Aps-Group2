@@ -1,23 +1,23 @@
-var express = require("express");
-var cors = require("cors");
-var logger = require("morgan");
-var fs = require("fs");
-var path = require("path");
-var yaml = require("js-yaml");
-var swaggerUi = require("swagger-ui-express");
+const express = require("express");
+const cors = require("cors");
+const logger = require("morgan");
+const fs = require("fs");
+const path = require("path");
+const yaml = require("js-yaml");
+const swaggerUi = require("swagger-ui-express");
 
-var aplikasiRouter = require("./routes/aplikasi.routes");
-var authRouter = require("./routes/auth.routes");
-var dashboardRouter = require("./routes/dashboard.routes");
-var authMiddleware = require("./middlewares/authMiddleware");
-var notFound = require("./middlewares/notFound");
-var errorHandler = require("./middlewares/errorHandler");
+const aplikasiRouter = require("./routes/aplikasi.routes");
+const authRouter = require("./routes/auth.routes");
+const dashboardRouter = require("./routes/dashboard.routes");
+const authMiddleware = require("./middlewares/authMiddleware");
+const notFound = require("./middlewares/notFound");
+const errorHandler = require("./middlewares/errorHandler");
 
-var openapiDoc = yaml.load(
+const openapiDoc = yaml.load(
     fs.readFileSync(path.join(__dirname, "docs", "openapi.yaml"), "utf8")
 );
 
-var app = express();
+const app = express();
 
 app.use(logger("dev"));
 app.use(cors());
