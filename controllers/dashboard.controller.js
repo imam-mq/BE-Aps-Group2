@@ -2,7 +2,6 @@ const dashboardService  = require("../services/dashboard.service");
 const { activityQuerySchema } = require("../validators/dashboard.schema");
 const { firstZodMessage  } = require("../utils/zodError");
 
-
 async function getSummary(req, res, next) {
     try {
         res.json(await dashboardService.getSummary());

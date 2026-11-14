@@ -53,7 +53,7 @@ async function create(req, res, next) {
     }
 }
 
-// update data
+// update dataa
 async function update(req, res, next) {
     const parsed = updateAplikasiSchema.safeParse(req.body);
     if (!parsed.success) {

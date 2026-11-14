@@ -3,6 +3,7 @@ const { verifyToken } = require("../utils/jwt");
 
 let io;
 
+// 
 function initSocket(server) {
     io = new Server(server, {
         cors: {

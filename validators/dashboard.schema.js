@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { todayWib, isRealDate, countDays } from "../utils/wibDate.js";
 
+// maks 90 hari
 const MAX_RANGE_DAYS = 90;
 
 const activityQuerySchema = z

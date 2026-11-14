@@ -47,6 +47,7 @@ const updateAplikasiSchema = z
         }
     })
 
+// filter status
 const listAplikasiQuerySchema = z.object({
     search: z.string().trim().optional().default(""),
     layanan: z.string().trim().optional().default(""),
