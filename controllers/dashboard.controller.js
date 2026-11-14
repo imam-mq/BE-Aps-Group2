@@ -1,6 +1,6 @@
-const dashboardService  = require("../services/dashboard.service");
-const { activityQuerySchema } = require("../validators/dashboard.schema");
-const { firstZodMessage  } = require("../utils/zodError");
+import * as dashboardService from "../services/dashboard.service.js";
+import { activityQuerySchema } from "../validators/dashboard.schema.js";
+import { firstZodMessage } from "../utils/zodError.js";
 
 async function getSummary(req, res, next) {
     try {
@@ -22,4 +22,4 @@ async function getActivity(req, res, next) {
     }
 }
 
-module.exports = { getSummary, getActivity }
+export { getSummary, getActivity }

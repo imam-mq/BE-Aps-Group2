@@ -1,7 +1,6 @@
-const authService = require("../services/auth.service");
-const { loginSchema, registerSchema, forgotPasswordSchema, resetPasswordSchema } = require("../validators/users.schema");
-const { firstZodMessage } = require("../utils/zodError");
-const { tr } = require("zod/locales");
+import * as authService from "../services/auth.service.js";
+import { loginSchema, registerSchema, forgotPasswordSchema, resetPasswordSchema } from "../validators/users.schema.js";
+import { firstZodMessage } from "../utils/zodError.js";
 
 
 async function login(req, res) {
@@ -53,4 +52,4 @@ async function resetPassword(req, res) {
     
 }
 
-module.exports = { login, register, forgotPassword, resetPassword };
+export { login, register, forgotPassword, resetPassword };

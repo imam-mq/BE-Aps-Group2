@@ -1,6 +1,7 @@
-const express = require("express");
-const controller = require("../controllers/dashboard.controller");
-const authMiddleware = require("../middlewares/authMiddleware");
+import express from "express";
+import * as controller from "../controllers/dashboard.controller.js";
+import authMiddleware from "../middlewares/authMiddleware.js";
+
 const router = express.Router();
 
 router.use(authMiddleware);
@@ -9,4 +10,4 @@ router.use(authMiddleware);
 router.get("/summary", controller.getSummary);
 router.get("/activity", controller.getActivity);
 
-module.exports = router;
+export default router;
