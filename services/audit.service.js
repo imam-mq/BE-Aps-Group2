@@ -1,5 +1,4 @@
-const prisma = require("../config/database");
-
+import prisma from "../config/database.js";
 
 async function logAction({ userId, aplikasiId, aplikasiNama, action, changedFields = [] }) {
 
@@ -20,4 +19,4 @@ async function logAction({ userId, aplikasiId, aplikasiNama, action, changedFiel
     
 }
 
-module.exports = { logAction };
+export { logAction };

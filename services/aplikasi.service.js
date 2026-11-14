@@ -1,8 +1,8 @@
-const prisma = require("../config/database");
-const { hashPassword, maskPassword, PASSWORD_MASK } = require("../utils/password");
-const { encryptValue, decryptValue, pickEncrypted } = require("../utils/crypto");
-const { getIo } = require("../config/socket");
-const { logAction } = require("./audit.service");
+import prisma from "../config/database.js";
+import { maskPassword, PASSWORD_MASK } from "../utils/password.js";
+import { encryptValue, decryptValue, pickEncrypted } from "../utils/crypto.js";
+import { getIo } from "../config/socket.js";
+import { logAction } from "./audit.service.js";
 
 // data ke FE
 function toResponse(row) {
@@ -36,7 +36,7 @@ function getChangedFields(before, after) {
   });
 }
 
-// get seluruh data
+// get seluruh data status
 async function getAll({ search, layanan, status, koneksi, skala, page, limit }) {
   const where = { delete_at: null };
 
@@ -195,4 +195,4 @@ async function lihatData(id) {
   };
 }
 
-module.exports = { getAll, getById, create, update, getByNamaAplikasi, remove, lihatData };
+export { getAll, getById, create, update, getByNamaAplikasi, remove, lihatData };

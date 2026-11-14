@@ -1,8 +1,9 @@
-const { Server } = require("socket.io");
-const { verifyToken } = require("../utils/jwt");
+import { Server } from "socket.io";
+import { verifyToken } from "../utils/jwt.js";
 
 let io;
 
+// 
 function initSocket(server) {
     io = new Server(server, {
         cors: {
@@ -48,4 +49,4 @@ function getIo() {
     return io;
 }
 
-module.exports = { initSocket, getIo };
+export { initSocket, getIo };

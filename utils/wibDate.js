@@ -30,4 +30,4 @@ function wibRangeToUtc(from, to) {
     return { start, end };
 }
 
-module.exports = { toWibDateString, todayWib, isRealDate, countDays, wibRangeToUtc };
+export { toWibDateString, todayWib, isRealDate, countDays, wibRangeToUtc };

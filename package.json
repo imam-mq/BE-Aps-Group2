@@ -2,8 +2,9 @@
   "name": "be-aps-group2",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
-    "start": "node ./bin/www",
+    "start": "node ./bin/www.js",
     "postinstall": "prisma skills sync || exit 0"
   },
   "dependencies": {

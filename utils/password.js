@@ -1,4 +1,4 @@
-const bcrypt = require("bcryptjs");
+import bcrypt from "bcryptjs";
 
 const PASSWORD_MASK = "•••••";
 const PASSWORD_REGEX = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/;
@@ -17,4 +17,4 @@ function maskPassword(row) {
   return { ...row, password_login: PASSWORD_MASK };
 }
 
-module.exports = { PASSWORD_MASK, PASSWORD_REGEX, hashPassword, comparePassword, maskPassword };
+export { PASSWORD_MASK, PASSWORD_REGEX, hashPassword, comparePassword, maskPassword };

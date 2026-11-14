@@ -1,8 +1,8 @@
-const prisma = require("../config/database");
-const { hashPassword, comparePassword } = require("../utils/password");
-const { signToken } = require("../utils/jwt");
-const { generateResetToken } = require("../utils/token");
-const { sendResetEmail } = require("../utils/mailer");
+import prisma from "../config/database.js";
+import { hashPassword, comparePassword } from "../utils/password.js";
+import { signToken } from "../utils/jwt.js";
+import { generateResetToken  } from "../utils/token.js";
+import { sendResetEmail } from "../utils/mailer.js";
 
 
 // login
@@ -95,4 +95,4 @@ async function resetPassword({ token, password }) {
     
 }
 
-module.exports = { login, register, forgotPassword, resetPassword  };
+export { login, register, forgotPassword, resetPassword  };

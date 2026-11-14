@@ -1,4 +1,4 @@
-const nodemailer = require("nodemailer");
+import nodemailer from "nodemailer";
 
 const transporter = nodemailer.createTransport({
     service: "gmail",
@@ -25,4 +25,4 @@ async function sendResetEmail(to, resetLink) {
     console.log(`Email reset password terkirim ke: ${to}`);
 }
 
-module.exports = { sendResetEmail };
+export { sendResetEmail };

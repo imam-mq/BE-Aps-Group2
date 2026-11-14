@@ -1,9 +1,9 @@
-const prisma = require("../config/database");
-const { toWibDateString, wibRangeToUtc } = require("../utils/wibDate");
+import prisma from "../config/database.js";
+import { toWibDateString, wibRangeToUtc } from "../utils/wibDate.js";
 
 const RECENT_LIMIT = 5;
 
-// kondisi Huruf besar dan kesil 
+// kondisi Huruf besar dan kecil 
 function countBy(rows, field) {
     const counts = new Map();
     for (const row of rows) {
@@ -76,4 +76,4 @@ async function getActivity({  from, to }) {
     return {  total: rows.length, daily, recent };
 }
 
-module.exports = { getSummary, getActivity };
+export { getSummary, getActivity };
