@@ -3,11 +3,13 @@
 /**
  * Module dependencies.
  */
+import 'dotenv/config';
+import app from '../app.js';
+import debugLib from 'debug';
+import http from 'http';
+import { initSocket } from '../config/socket.js';
 
-const app = require('../app');
-const debug = require('debug')('be-aps-group2:server');
-const http = require('http');
-const { initSocket } = require('../config/socket');
+const debug = debugLib('be-aps-group2:server');
 
 /**
  * Get port from environment and store in Express.

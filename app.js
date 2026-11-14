@@ -1,17 +1,20 @@
-const express = require("express");
-const cors = require("cors");
-const logger = require("morgan");
-const fs = require("fs");
-const path = require("path");
-const yaml = require("js-yaml");
-const swaggerUi = require("swagger-ui-express");
+import express from "express";
+import cors from "cors";
+import logger from "morgan";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+import yaml from "js-yaml";
+import swaggerUi from "swagger-ui-express";
 
-const aplikasiRouter = require("./routes/aplikasi.routes");
-const authRouter = require("./routes/auth.routes");
-const dashboardRouter = require("./routes/dashboard.routes");
-const authMiddleware = require("./middlewares/authMiddleware");
-const notFound = require("./middlewares/notFound");
-const errorHandler = require("./middlewares/errorHandler");
+import aplikasiRouter from "./routes/aplikasi.routes.js";
+import authRouter from "./routes/auth.routes.js";
+import dashboardRouter from "./routes/dashboard.routes.js";
+import authMiddleware from "./middlewares/authMiddleware.js";
+import notFound from "./middlewares/notFound.js";
+import errorHandler from "./middlewares/errorHandler.js";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const openapiDoc = yaml.load(
     fs.readFileSync(path.join(__dirname, "docs", "openapi.yaml"), "utf8")
@@ -39,4 +42,4 @@ app.use("/api/dashboard", dashboardRouter);
 app.use(notFound);
 app.use(errorHandler);
 
-module.exports = app;
+export default app;
