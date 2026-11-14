@@ -1,5 +1,5 @@
-const { z } = require("zod");
-const { PASSWORD_MASK, PASSWORD_REGEX } = require("../utils/password");
+import { z } from "zod";
+import { PASSWORD_MASK, PASSWORD_REGEX, } from "../utils/password.js"
 
 const skalaEnum = z.enum(["Kecil", "Sedang", "Besar"]);
 
@@ -56,4 +56,5 @@ const listAplikasiQuerySchema = z.object({
     page: z.coerce.number().int("page harus bilangan bulat").min(1, "page minimal 1").optional().default(1),
     limit: z.coerce.number().int("limit harus bilangan bulat").min(1, "limit minimal 1").max(50, "limit maksimal 50").optional().default(10),
 });
-module.exports = { PASSWORD_MASK, createAplikasiSchema, updateAplikasiSchema, listAplikasiQuerySchema };
+
+export  { PASSWORD_MASK, createAplikasiSchema, updateAplikasiSchema, listAplikasiQuerySchema };

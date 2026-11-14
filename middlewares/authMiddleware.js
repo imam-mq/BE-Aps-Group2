@@ -1,6 +1,6 @@
-const { verifyToken } = require("../utils/jwt");
+import { verifyToken } from "../utils/jwt.js";
 
-module.exports = function authMiddleware(req, res, next) {
+export default function authMiddleware(req, res, next) {
     const authHeader = req.headers.authorization;
 
     if(!authHeader || !authHeader.startsWith("Bearer ")){

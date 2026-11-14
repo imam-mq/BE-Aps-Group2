@@ -1,5 +1,5 @@
-const { z, email } = require("zod");
-const { PASSWORD_REGEX } = require("../utils/password");
+import { z } from "zod";
+import { PASSWORD_REGEX } from "../utils/password.js";
 
 const registerSchema = z.object({
     name: z.string().trim().min(1, "Nama Wajib Diisi"),
@@ -22,4 +22,4 @@ const resetPasswordSchema = z.object({
     password: z.string().min(1, "Password wajib diisi").regex(PASSWORD_REGEX, "Password minimal 8 karakter serta kombinasi dengan angka"),
 });
 
-module.exports = { registerSchema, loginSchema, forgotPasswordSchema, resetPasswordSchema  };
+export { registerSchema, loginSchema, forgotPasswordSchema, resetPasswordSchema  };

@@ -1,5 +1,5 @@
-const { z } = require("zod");
-const { todayWib, isRealDate, countDays } = require("../utils/wibDate");
+import { z } from "zod";
+import { todayWib, isRealDate, countDays } from "../utils/wibDate.js";
 
 const MAX_RANGE_DAYS = 90;
 
@@ -24,4 +24,4 @@ const activityQuerySchema = z
 
     });
 
-module.exports = { activityQuerySchema };
+export { activityQuerySchema };
