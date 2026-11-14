@@ -1,6 +1,6 @@
-const aplikasiService = require("../services/aplikasi.service");
-const { createAplikasiSchema, updateAplikasiSchema, listAplikasiQuerySchema  } = require("../validators/aplikasi.schema");
-const { firstZodMessage } = require("../utils/zodError");
+import * as aplikasiService from "../services/aplikasi.service.js";
+import { createAplikasiSchema, updateAplikasiSchema, listAplikasiQuerySchema } from "../validators/aplikasi.schema.js";
+import { firstZodMessage } from "../utils/zodError.js";
 
 
 // tampil data
@@ -79,4 +79,4 @@ async function remove(req, res, next) {
     }
 }
 
-module.exports = { getAll, getById, create, update, getByNamaAplikasi,remove };
+export { getAll, getById, create, update, getByNamaAplikasi,remove };
