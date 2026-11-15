@@ -1,6 +1,9 @@
 import express from "express";
 import * as controller from "../controllers/aplikasi.controller.js";
+import authMiddleware from "../middlewares/authMiddleware.js";
 const router = express.Router();
+
+router.use(authMiddleware);
 
 router.get("/", controller.getAll);
 router.get("/:id", controller.getById);
