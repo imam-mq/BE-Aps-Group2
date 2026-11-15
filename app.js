@@ -10,7 +10,6 @@ import swaggerUi from "swagger-ui-express";
 import aplikasiRouter from "./routes/aplikasi.routes.js";
 import authRouter from "./routes/auth.routes.js";
 import dashboardRouter from "./routes/dashboard.routes.js";
-import authMiddleware from "./middlewares/authMiddleware.js";
 import notFound from "./middlewares/notFound.js";
 import errorHandler from "./middlewares/errorHandler.js";
 
@@ -36,7 +35,7 @@ app.use(
 );
 
 app.use("/api/auth", authRouter);
-app.use("/api/aplikasi", authMiddleware, aplikasiRouter);
+app.use("/api/aplikasi", aplikasiRouter);
 app.use("/api/dashboard", dashboardRouter);
 
 app.use(notFound);
